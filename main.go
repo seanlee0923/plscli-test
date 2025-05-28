@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 )
 
 func main() {
@@ -30,9 +31,24 @@ func main() {
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
+	go testInterval(server)
+
 	<-sigCh
 	fmt.Println("Shutting down...")
 
 	cancel()
 	wg.Wait()
+}
+
+func testInterval(c *plscli.PlsClient) {
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			leader, err := c.IsLeader()
+
+			fmt.Println(leader, err)
+		}
+	}
 }
