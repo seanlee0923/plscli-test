@@ -46,9 +46,12 @@ func testInterval(c *plscli.PlsClient) {
 	for {
 		select {
 		case <-ticker.C:
-			leader, err := c.IsLeader()
+			if c.Registered() {
 
-			fmt.Println(leader, err)
+				leader, err := c.IsLeader()
+
+				fmt.Println(leader, err)
+			}
 		}
 	}
 }
